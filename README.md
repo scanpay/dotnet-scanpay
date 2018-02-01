@@ -41,7 +41,7 @@ Console.WriteLine("Payment URL is " + url);
 Get an array with a number of changes since the supplied sequence number:
 ```csharp
 var oldSeq = 3
-var seqRes = client.seq(oldSeq, opts);
+var seqRes = client.seq(oldSeq);
 foreach(var change in seqRes.changes)
 {
     // Update your database with change...

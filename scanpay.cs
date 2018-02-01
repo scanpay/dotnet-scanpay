@@ -20,19 +20,20 @@ namespace Scanpay
         private Tres request<Tdata, Tres>(string url, Tdata data, Options opts)
         {
             var hostname = (opts == null || opts.hostname == null) ? HOSTNAME : opts.hostname;
-            var _apikey = (opts == null || opts.auth == null) ? apikey : opts.auth;
             var req = (HttpWebRequest)WebRequest.Create("https://" + hostname + url);
-            var auth = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(_apikey));
             req.Method = "GET";
             req.ContentType = "application/json";
-            req.Headers["X-SDK"] = ".NET-0.1.0";
-            req.Headers[HttpRequestHeader.Authorization] = auth;
+            req.Headers["X-SDK"] = ".NET-0.1.2";
             if (opts != null && opts.headers != null)
             {
                 foreach(KeyValuePair<string, string> hdr in opts.headers)
                 {
                     req.Headers[hdr.Key] = hdr.Value;
                 }
+            }
+            if (string.IsNullOrEmpty(req.Headers[HttpRequestHeader.Authorization])) {
+                var auth = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apikey));
+                req.Headers[HttpRequestHeader.Authorization] = auth;
             }
 
             req.AutomaticDecompression = DecompressionMethods.GZip;
@@ -78,8 +79,7 @@ namespace Scanpay
 
         public Ping handlePing(byte[] body, string signature, Options opts=null)
         {
-            var _apikey = (opts == null || opts.auth == null) ? apikey : opts.auth;
-            var binApikey = Encoding.UTF8.GetBytes(_apikey);
+            var binApikey = Encoding.UTF8.GetBytes(apikey);
             var hasher = new System.Security.Cryptography.HMACSHA256(binApikey);
             var binDigest = hasher.ComputeHash(body);
             var digest = Convert.ToBase64String(binDigest);
@@ -99,108 +99,108 @@ namespace Scanpay
         }
         internal class NullReq{}
     }
-        public class NewURLReq
-        {
-            public string   orderid;
-            public string   successurl;
-            public Item[]   items;
-            public Billing  billing;
-            public Shipping shipping;
-            public string   language;
-            public bool     autocapture;
-            public string   lifetime;
-        }
 
-        public class Item
-        {
-            public string name;
-            public uint   quantity;
-            public string price;
-            public string sku;
-        }
+    public class NewURLReq
+    {
+        public string   orderid;
+        public string   successurl;
+        public Item[]   items;
+        public Billing  billing;
+        public Shipping shipping;
+        public string   language;
+        public bool     autocapture;
+        public string   lifetime;
+    }
 
-        public class Billing
-        {
-            public string   name;
-            public string   company;
-            public string   vatin;
-            public string   gln;
-            public string   email;
-            public string   phone;
-            public string[] address;
-            public string   city;
-            public string   zip;
-            public string   state;
-            public string   country;
-        }
+    public class Item
+    {
+        public string name;
+        public uint   quantity;
+        public string price;
+        public string sku;
+    }
 
-        public class Shipping
-        {
-            public string   name;
-            public string   company;
-            public string   email;
-            public string   phone;
-            public string[] address;
-            public string   city;
-            public string   zip;
-            public string   state;
-            public string   country;
-        }
+    public class Billing
+    {
+        public string   name;
+        public string   company;
+        public string   vatin;
+        public string   gln;
+        public string   email;
+        public string   phone;
+        public string[] address;
+        public string   city;
+        public string   zip;
+        public string   state;
+        public string   country;
+    }
 
-        public class NewURLRes
-        {
-            public string url;
-        }
+    public class Shipping
+    {
+        public string   name;
+        public string   company;
+        public string   email;
+        public string   phone;
+        public string[] address;
+        public string   city;
+        public string   zip;
+        public string   state;
+        public string   country;
+    }
 
-        public class SeqRes
-        {
-            public ulong    seq;
-            public Change[] changes;
-        }
+    public class NewURLRes
+    {
+        public string url;
+    }
 
-        public class Change
-        {
-            public ulong  id;
-            public uint   rev;
-            public string orderid;
-            public string error;
-            public Time time;
-            public Act[] acts;
-            public Totals totals;
-        }
+    public class SeqRes
+    {
+        public ulong    seq;
+        public Change[] changes;
+    }
 
-        public class Time
-        {
-            public long created;
-            public long authorized;
-        }
+    public class Change
+    {
+        public ulong  id;
+        public uint   rev;
+        public string orderid;
+        public string error;
+        public Time time;
+        public Act[] acts;
+        public Totals totals;
+    }
 
-        public class Act
-        {
-            public string act;
-            public long   time;
-            public string total;
-        }
+    public class Time
+    {
+        public long created;
+        public long authorized;
+    }
 
-        public class Totals
-        {
-            public string authorized;
-            public string captured;
-            public string refunded;
-            public string left;
-        }
+    public class Act
+    {
+        public string act;
+        public long   time;
+        public string total;
+    }
 
-        public class Ping
-        {
-            public ulong shopid;
-            public ulong seq;
-        }
+    public class Totals
+    {
+        public string authorized;
+        public string captured;
+        public string refunded;
+        public string left;
+    }
 
-        public class Options
-        {
-            public string                     hostname;
-            public string                     auth;
-            public Dictionary<string, string> headers;
-        }
+    public class Ping
+    {
+        public ulong shopid;
+        public ulong seq;
+    }
+
+    public class Options
+    {
+        public string                     hostname;
+        public Dictionary<string, string> headers;
+    }
 
 }
