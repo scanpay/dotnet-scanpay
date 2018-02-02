@@ -53,7 +53,7 @@ Console.WriteLine("New seq number is " + seqRes.seq);
 Verify the ping signature and extract the seq number.
 ```csharp
 var ping = client.handlePing(body, request.Headers["X-Signature"]);
-Console.WriteLine("Ping seq=" + ping.seq + ", shopid=" + ping.shopid);;
+Console.WriteLine("Ping seq=" + ping.seq + ", shopid=" + ping.shopid);
 ```
 
 See the tests/ folder for more advanced examples.
