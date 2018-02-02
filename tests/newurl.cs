@@ -16,14 +16,14 @@ namespace NewURLTest
                     new Scanpay.Item
                     {
                         name     = "Ultra Bike 7000",
-                        price    = "1337.01 DKK",
+                        total    = "1337.01 DKK",
                         quantity = 2,
                         sku      = "ff123",
                     },
                     new Scanpay.Item
                     {
                       name      = "巨人宏偉的帽子",
-                      price     = "420 DKK",
+                      total     = "420 DKK",
                       quantity  = 2,
                       sku       = "124",
                     },

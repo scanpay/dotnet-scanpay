@@ -116,7 +116,7 @@ namespace Scanpay
     {
         public string name;
         public uint   quantity;
-        public string price;
+        public string total;
         public string sku;
     }
 

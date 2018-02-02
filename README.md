@@ -28,7 +28,7 @@ var data = new Scanpay.NewURLReq
         new Scanpay.Item
         {
             name     = "Ultra Bike 7000",
-            price    = "1337.01 DKK",
+            total    = "1337.01 DKK",
             quantity = 2,
         },
     }
