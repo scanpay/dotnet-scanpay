@@ -60,6 +60,10 @@ namespace Scanpay
             }
             catch (WebException we)
             {
+                if (we.Response == null)
+                {
+                    throw new Exception("Network error getting Scanpay res: " + we.Message);
+                }
                 var statusMsg = ((HttpWebResponse)we.Response).StatusDescription;
                 throw new Exception("Scanpay responded with error: '" + statusMsg + "'");
             }
