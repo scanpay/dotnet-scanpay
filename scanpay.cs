@@ -47,13 +47,21 @@ namespace Scanpay
                     jtw.Flush();
                 }
             }
-
-            using (var res = (HttpWebResponse)req.GetResponse())
-            using (var stream = res.GetResponseStream())
-            using (var sr = new StreamReader(stream))
-            using (var jtr = new JsonTextReader(sr))
+            
+            try
             {
-                return JsonSerializer.Create().Deserialize<Tres>(jtr);
+                using (var res = (HttpWebResponse)req.GetResponse())
+                using (var stream = res.GetResponseStream())
+                using (var sr = new StreamReader(stream))
+                using (var jtr = new JsonTextReader(sr))
+                {
+                    return JsonSerializer.Create().Deserialize<Tres>(jtr);
+                }
+            }
+            catch (WebException we)
+            {
+                var statusMsg = ((HttpWebResponse)we.Response).StatusDescription;
+                throw new Exception("Scanpay responded with error: '" + statusMsg + "'");
             }
         }
 
