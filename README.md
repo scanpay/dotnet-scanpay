@@ -5,9 +5,19 @@ See the [docs](https://docs.scanpay.dk/).
 
 ## Installation
 From the command line:
-```bash
-$ nuget install scanpay
-```
+
+    $ nuget install scanpay
+From Package Manager:
+
+    PM>  Install-Package scanpay
+
+From within Visual Studio:
+
+1. Open the Solution Explorer.
+2. Right-click on a project within your solution.
+3. Click on *Manage NuGet Packages...*
+4. Click on the *Browse* tab and search for "scanpay".
+5. Click on the scanpay package, select the appropriate version in the right-tab and click *Install*.
 
 ## Usage
 
