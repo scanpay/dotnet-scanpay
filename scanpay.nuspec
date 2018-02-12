@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>scanpay</id>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
     <authors>Christian Thorseth Blach</authors>
     <owners>Scanpay ApS</owners>
     <licenseUrl>https://github.com/cblach/dotnet-scanpay/blob/master/LICENSE</licenseUrl>

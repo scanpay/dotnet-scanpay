@@ -27,6 +27,18 @@ var apikey = "1089:bx2a4DATi8ad87Nm4uaxg5nggYA8J/Hv99CON977YiEdvYa6DmMwdoRPoYWyB
 var client = new Scanpay.Client(apikey);
 ```
 
+The Scanpay API requires TLS 1.2 support. If you do not use the latest .NET version, you may have to explicitly enable TLS 1.2 by adding the following to your main function:
+
+```csharp
+ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+```
+
+If  `SecurityProtocolType.Tls12` is undefined in your .NET version, you can attempt the following:
+```csharp
+ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072;;
+```
+
+
 ### New Payment Link
 Create a payment link to which you can redirect customers.
 ```csharp
