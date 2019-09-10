@@ -2,8 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+/* Basic calls (Arguments wrapped quare brackets are optional):
+ * client.newURL(NewURLReq reqdata, [Options opts]), returns paymenturl string
+ * client.seq(ulong seq, [Options opts]), returns SeqRes
+ * client.handlePing(byte[] body, string signature, [Options opts[]]), returns Ping object
+ *
+ * Subscription calls:
+ * client.generateIdempotencyKey(), returns idempotency-key string
+ * client.charge(ulong subid, ChargeReq reqdata, [Options opts]), returns ChargeRes
+ * client.renew(ulong subid, RenewReq reqdata, [Options opts]), returns paymenturl string
+ *
+ * See the tests/ folder for usage examples.
+ */
 
 namespace Scanpay
 {
@@ -23,7 +38,7 @@ namespace Scanpay
             var req = (HttpWebRequest)WebRequest.Create("https://" + hostname + url);
             req.Method = "GET";
             req.ContentType = "application/json";
-            req.Headers["X-SDK"] = ".NET-0.1.6";
+            req.Headers["X-SDK"] = ".NET-1.0.0";
             if (opts != null && opts.headers != null)
             {
                 foreach(KeyValuePair<string, string> hdr in opts.headers)
@@ -31,31 +46,62 @@ namespace Scanpay
                     req.Headers[hdr.Key] = hdr.Value;
                 }
             }
-            if (string.IsNullOrEmpty(req.Headers[HttpRequestHeader.Authorization])) {
+            if (string.IsNullOrEmpty(req.Headers[HttpRequestHeader.Authorization]))
+            {
                 var auth = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apikey));
                 req.Headers[HttpRequestHeader.Authorization] = auth;
             }
-
             req.AutomaticDecompression = DecompressionMethods.GZip;
             if (data != null)
             {
                 req.Method = "POST";
-                using (var sw = new StreamWriter(req.GetRequestStream()))
+                using (var sw = new StreamWriter(req.GetRequestStream(), new UTF8Encoding(false)))
                 using (JsonTextWriter jtw = new JsonTextWriter(sw))
                 {
                     JsonSerializer.Create().Serialize(jtw, data);
                     jtw.Flush();
                 }
             }
-            
+
             try
             {
-                using (var res = (HttpWebResponse)req.GetResponse())
-                using (var stream = res.GetResponseStream())
-                using (var sr = new StreamReader(stream))
-                using (var jtr = new JsonTextReader(sr))
-                {
-                    return JsonSerializer.Create().Deserialize<Tres>(jtr);
+                using (var res = (HttpWebResponse)req.GetResponse()) {
+                    if (!string.IsNullOrEmpty(req.Headers["X-Idempotency-Key"])) {
+                        string err;
+                        switch (res.Headers["Idempotency-Status"]) {
+                            case "OK":
+                                err = null;
+                                break;
+                            case "ERROR":
+                                err = "Server failed to provide idempotency";
+                                break;
+                            case "":
+                                err = "Idempotency status response header missing";
+                                break;
+                            default:
+                                err = "Server returned unknown idempotency status " +
+                                    res.Headers["Idempotency-Status"];
+                                break;
+                        }
+                        if (err != null)
+                        {
+                            throw new Exception(err + ". Scanpay returned " + res.StatusCode +
+                                " - " + res.StatusDescription);
+                        }
+                    }
+                    using (var stream = res.GetResponseStream())
+                    using (var sr = new StreamReader(stream, Encoding.UTF8))
+                    using (var jtr = new JsonTextReader(sr))
+                    {
+                        try
+                        {
+                            return JsonSerializer.Create().Deserialize<Tres>(jtr);
+                        }
+                        catch (JsonException je)
+                        {
+                            throw new IdempotentResponseException("JSON parsing exception: " + je.Message);
+                        }
+                    }
                 }
             }
             catch (WebException we)
@@ -65,13 +111,13 @@ namespace Scanpay
                     throw new Exception("Network error getting Scanpay res: " + we.Message);
                 }
                 var statusMsg = ((HttpWebResponse)we.Response).StatusDescription;
-                throw new Exception("Scanpay responded with error: '" + statusMsg + "'");
+                throw new IdempotentResponseException("Scanpay responded with error: '" + statusMsg + "'");
             }
         }
 
-        public string newURL(NewURLReq data, Options opts=null)
+        public string newURL(NewURLReq reqdata, Options opts=null)
         {
-            var resobj = request<NewURLReq, NewURLRes>("/v1/new", data, opts);
+            var resobj = request<NewURLReq, NewURLRes>("/v1/new", reqdata, opts);
             return resobj.url;
         }
 
@@ -95,12 +141,14 @@ namespace Scanpay
             var hasher = new System.Security.Cryptography.HMACSHA256(binApikey);
             var binDigest = hasher.ComputeHash(body);
             var digest = Convert.ToBase64String(binDigest);
-            if (!constTimeEquals(digest, signature)) {
+            if (!constTimeEquals(digest, signature))
+            {
                 throw new Exception("invalid ping signature");
             }
             using (var ms = new MemoryStream(body))
             using (var sr = new StreamReader(ms))
-            using (var jtr = new JsonTextReader(sr)) {
+            using (var jtr = new JsonTextReader(sr))
+            {
                 return JsonSerializer.Create().Deserialize<Ping>(jtr);
             }
         }
@@ -109,19 +157,50 @@ namespace Scanpay
         {
             return handlePing(Encoding.UTF8.GetBytes(body), signature);
         }
-        internal class NullReq{}
+
+        public string generateIdempotencyKey()
+        {
+            byte[] random = new Byte[32];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            rng.GetBytes(random);
+            char[] trimChars = {'='};
+            return Convert.ToBase64String(random).Trim(trimChars);
+        }
+
+        public ChargeRes charge(ulong subid, ChargeReq reqdata, Options opts=null)
+        {
+            var url = String.Format("/v1/subscribers/{0}/charge", subid);
+            var resobj = request<ChargeReq, ChargeRes>(url, reqdata, opts);
+            return resobj;
+        }
+
+        public string renew(ulong subid, RenewReq reqdata, Options opts=null)
+        {
+            var url = string.Format("/v1/subscribers/{0}/renew", subid);
+            var resobj = request<RenewReq, RenewRes>(url, reqdata, opts);
+            return resobj.url;
+        }
+
+        internal class NullReq {}
     }
+
+    public class IdempotentResponseException : Exception {
+        public IdempotentResponseException(string msg) : base(msg) {}
+    }
+
+    /* Request/Response object definitions */
 
     public class NewURLReq
     {
-        public string   orderid;
-        public string   successurl;
-        public Item[]   items;
-        public Billing  billing;
-        public Shipping shipping;
-        public string   language;
-        public bool     autocapture;
-        public string   lifetime;
+        public string     orderid;
+        public string     successurl;
+        public Item[]     items;
+        public Subscriber subscriber;
+        public Billing    billing;
+        public Shipping   shipping;
+        public string     language;
+        public bool       autocapture;
+        public string     lifetime;
     }
 
     public class Item
@@ -130,6 +209,11 @@ namespace Scanpay
         public uint   quantity;
         public string total;
         public string sku;
+    }
+
+    public class Subscriber
+    {
+        public string @ref;
     }
 
     public class Billing
@@ -171,36 +255,100 @@ namespace Scanpay
         public Change[] changes;
     }
 
-    public class Change
+    [JsonConverter(typeof(ChangeConverter))]
+    public abstract class Change
     {
+        public string type;
         public ulong  id;
-        public uint   rev;
-        public string orderid;
+        public string rev;
         public string error;
-        public Time time;
-        public Act[] acts;
+        public Time   time;
+        public Act[]  acts;
+        public class Time
+        {
+            public long created;
+            public long authorized;
+        }
+        public class Act
+        {
+            public string act;
+            public long   time;
+            public string total;
+        }
+    }
+
+    public class TransactionChange : Change
+    {
+        public string orderid;
         public Totals totals;
+        public class Totals
+        {
+            public string authorized;
+            public string captured;
+            public string refunded;
+            public string left;
+        }
     }
 
-    public class Time
+    public class ChargeChange : TransactionChange
     {
-        public long created;
-        public long authorized;
+        public Subscriber subscriber;
+        public class Subscriber
+        {
+            public ulong id;
+            public string @ref;
+        }
     }
 
-    public class Act
+    public class SubscriberChange : Change
     {
-        public string act;
-        public long   time;
-        public string total;
+        public string @ref;
+        public string orderid;
+        public Subscriber subscriber;
     }
+    public class UnknownChange : Change{}
 
-    public class Totals
+    /* JSON handling of change */
+    public class ChangeConverter : JsonConverter
     {
-        public string authorized;
-        public string captured;
-        public string refunded;
-        public string left;
+        public override bool CanConvert(Type t)
+        {
+            return (t == typeof(Change));
+        }
+        public override object ReadJson(JsonReader r, Type t, object existing, JsonSerializer ser)
+        {
+            if (t == typeof(Change))
+            {
+                JObject jo = JObject.Load(r);
+                if (jo["type"].Value<string>() == "transaction")
+                {
+                    return jo.ToObject<TransactionChange>(ser);
+                }
+                if (jo["type"].Value<string>() == "charge")
+                {
+                    return jo.ToObject<ChargeChange>(ser);
+                }
+                if (jo["type"].Value<string>() == "subscriber")
+                {
+                    return jo.ToObject<SubscriberChange>(ser);
+                }
+                return jo.ToObject<UnknownChange>(ser);;
+            } else
+            {
+                ser.ContractResolver.ResolveContract(t).Converter = null;
+                return ser.Deserialize(r, t);
+            }
+        }
+
+        public override bool CanWrite
+        {
+            get { return false; }
+        }
+
+        public override void WriteJson(JsonWriter w, object v, JsonSerializer ser)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Ping
@@ -209,10 +357,42 @@ namespace Scanpay
         public ulong seq;
     }
 
+    public class ChargeReq
+    {
+        public string   orderid;
+        public Item[]   items;
+        public Billing  billing;
+        public Shipping shipping;
+        public bool     autocapture;
+    }
+
+    public class ChargeRes
+    {
+        public ulong  id;
+        public Totals totals;
+        public class  Totals
+        {
+            public string authorized;
+        }
+    }
+
+    public class RenewReq
+    {
+        public string     successurl;
+        public Billing    billing;
+        public Shipping   shipping;
+        public string     language;
+        public string     lifetime;
+    }
+
+    public class RenewRes
+    {
+        public string url;
+    }
+
     public class Options
     {
         public string                     hostname;
         public Dictionary<string, string> headers;
     }
-
 }

@@ -2,16 +2,16 @@
 <package>
   <metadata>
     <id>scanpay</id>
-    <version>0.1.6</version>
+    <version>1.0.0</version>
     <authors>Christian Thorseth Blach</authors>
     <owners>Scanpay ApS</owners>
-    <licenseUrl>https://github.com/cblach/dotnet-scanpay/blob/master/LICENSE</licenseUrl>
+    <license type="file">LICENSE</license>
     <projectUrl>https://github.com/cblach/dotnet-scanpay</projectUrl>
     <iconUrl>https://s3.eu-central-1.amazonaws.com/scanpay.dk/scanpay-128x128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Scanpay .NET client library</description>
     <releaseNotes>Initial release.</releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright 2019</copyright>
     <tags>payment gateway</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="10.0" />

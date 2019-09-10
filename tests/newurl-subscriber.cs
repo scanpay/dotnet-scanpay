@@ -1,6 +1,6 @@
 using System;
 
-namespace NewURLTest
+namespace NewURLSubscriberTest
 {
     class Program
     {
@@ -9,24 +9,11 @@ namespace NewURLTest
             var client = new Scanpay.Client("1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W");
             var data = new Scanpay.NewURLReq
             {
-                orderid     = "999",
+                orderid     = "suborder912",
                 successurl  = "https://example.com",
-                items = new Scanpay.Item[]
+                subscriber = new Scanpay.Subscriber
                 {
-                    new Scanpay.Item
-                    {
-                        name     = "Ultra Bike 7000",
-                        total    = "1337.01 DKK",
-                        quantity = 2,
-                        sku      = "ff123",
-                    },
-                    new Scanpay.Item
-                    {
-                      name      = "巨人宏偉的帽子",
-                      total     = "420 DKK",
-                      quantity  = 2,
-                      sku       = "124",
-                    },
+                    @ref = "sub1234",
                 },
                 billing = new Scanpay.Billing
                 {
@@ -61,7 +48,6 @@ namespace NewURLTest
                     country = "DK",
                 },
                 language    = "",
-                autocapture = false,
                 lifetime    = "1h",
             };
             /* The following opts is to use the test environment, omit it to use the production env. */
@@ -70,7 +56,7 @@ namespace NewURLTest
                 hostname = "api.test.scanpay.dk",
             };
             var url = client.newURL(data, opts);
-            Console.WriteLine("Payment URL is: " + url);
+            Console.WriteLine("Subscription URL is: " + url);
         }
     }
 }
