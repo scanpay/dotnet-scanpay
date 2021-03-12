@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
  * client.newURL(NewURLReq reqdata, [Options opts]), returns paymenturl string
  * client.seq(ulong seq, [Options opts]), returns SeqRes
  * client.handlePing(byte[] body, string signature, [Options opts[]]), returns Ping object
+ * client.capture(ulong trnid, CaptureReq  reqdata, [Options opts[]]), returns CaptureRes object
  *
  * Subscription calls:
  * client.generateIdempotencyKey(), returns idempotency-key string
@@ -165,6 +166,13 @@ namespace Scanpay
             rng.GetBytes(random);
             char[] trimChars = {'='};
             return Convert.ToBase64String(random).Trim(trimChars);
+        }
+
+        public CaptureRes capture(ulong trnid, CaptureReq reqdata, Options opts=null)
+        {
+            var url = String.Format("/v1/transactions/{0}/capture", trnid);
+            var resobj = request<CaptureReq, CaptureRes>(url, reqdata, opts);
+            return resobj;
         }
 
         public ChargeRes charge(ulong subid, ChargeReq reqdata, Options opts=null)
@@ -355,6 +363,16 @@ namespace Scanpay
     {
         public ulong shopid;
         public ulong seq;
+    }
+
+    public class CaptureReq
+    {
+        public string total;
+        public uint index;
+    }
+
+    public class CaptureRes
+    {
     }
 
     public class ChargeReq
