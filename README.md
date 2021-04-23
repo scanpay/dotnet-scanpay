@@ -1,17 +1,21 @@
-# Scanpay .NET library
+# Scanpay .NET client
 
-## Documentation
-See the [docs](https://docs.scanpay.dk/).
+.NET client library for the Scanpay API ([docs](https://docs.scanpay.dk/)). You can always e-mail us at help@scanpay.dk or chat with us on IRC at Freenode [`#scanpay`](https://webchat.freenode.net?randomnick=1&channels=scanpay&prompt=1).
 
 ## Installation
-From the command line:
+The library is uploaded to [nuget](https://www.nuget.org/packages/scanpay/). You can install it in several ways:
 
-    $ nuget install scanpay
-From Package Manager:
+#### Install from the Package Manager:
+```bash
+PM>  Install-Package scanpay
+```
 
-    PM>  Install-Package scanpay
+#### Install from .NET CLI
+```bash
+dotnet add package scanpay
+```
 
-From within Visual Studio:
+#### Install from within Visual Studio:
 
 1. Open the Solution Explorer.
 2. Right-click on a project within your solution.
