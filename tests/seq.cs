@@ -20,16 +20,17 @@ namespace NewURLTest
                     Console.WriteLine("  error = " + change.error);
                     continue;
                 }
+                Console.WriteLine(change.type);
                 if (change is Scanpay.TransactionChange)
                 {
                     var trn = (Scanpay.TransactionChange)change;
-                    Console.WriteLine("Change (transaction id=" + trn.id + ")");
+                    Console.WriteLine("  trnid      = " + trn.id);
                     Console.WriteLine("  rev        = " + trn.rev);
                     Console.WriteLine("  orderid    = " + trn.orderid);
                     if (trn is Scanpay.ChargeChange) {
                         var charge = (Scanpay.ChargeChange)trn;
-                        Console.WriteLine("  subscriber id = " + charge.subscriber.id);
-                        Console.WriteLine("  subscriber ref = " + charge.subscriber.@ref);
+                        Console.WriteLine("  sub id     = " + charge.subscriber.id);
+                        Console.WriteLine("  sub ref    = " + charge.subscriber.@ref);
                     }
                     Console.WriteLine("  payid time = " + trn.time.created);
                     Console.WriteLine("  auth time  = " + trn.time.authorized);
@@ -70,6 +71,7 @@ namespace NewURLTest
                 {
                     Console.WriteLine("unknown change type");
                 }
+                Console.WriteLine("");
             }
             Console.WriteLine("New seq after applying all changes: seq = " + seqRes.seq);
         }
