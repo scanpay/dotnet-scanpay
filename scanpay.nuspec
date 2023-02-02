@@ -2,10 +2,11 @@
 <package>
   <metadata>
     <id>scanpay</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <authors>Christian Thorseth Blach</authors>
     <owners>Scanpay ApS</owners>
     <license type="file">LICENSE</license>
+    <readme>README.md</readme>
     <projectUrl>https://github.com/cblach/dotnet-scanpay</projectUrl>
     <iconUrl>https://s3.eu-central-1.amazonaws.com/scanpay.dk/scanpay-128x128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
