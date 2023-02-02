@@ -39,7 +39,7 @@ namespace Scanpay
             var req = (HttpWebRequest)WebRequest.Create("https://" + hostname + url);
             req.Method = "GET";
             req.ContentType = "application/json";
-            req.Headers["X-SDK"] = ".NET-1.0.0";
+            req.Headers["X-SDK"] = ".NET-1.0.2";
             if (opts != null && opts.headers != null)
             {
                 foreach(KeyValuePair<string, string> hdr in opts.headers)
@@ -271,11 +271,24 @@ namespace Scanpay
         public string rev;
         public string error;
         public Time   time;
+        public Method method;
         public Act[]  acts;
         public class Time
         {
             public long created;
             public long authorized;
+        }
+        public class Method
+        {
+            public string type;
+            public string id;
+            public Card card;
+            public class Card
+            {
+                public string brand;
+                public string last4;
+                public long exp;
+            }
         }
         public class Act
         {
