@@ -21,7 +21,7 @@ dotnet add package scanpay
 2. Right-click on a project within your solution.
 3. Click on *Manage NuGet Packages...*
 4. Click on the *Browse* tab and search for "scanpay".
-5. Click on the scanpay package, select the appropriate version in the right-tab and click *Install*.
+5. Click on the scanpay package, select the appropriate version in the right tab and click *Install*.
 
 ## Usage
 
@@ -101,7 +101,7 @@ Console.WriteLine("Payment URL is " + url);
 ```
 
 ### Synchronization
-To know when transactions, charges, subscribers and subscriber renewal succeeds, you need to use the synchronization API. It consists of pings which notify you of changes, and the seq request which allows you to pull changes.
+To know when transactions, charges, subscribers and subscriber renewal succeeds, you need to use the synchronization API. It consists of pings which notify you of changes and the seq request which allows you to pull changes.
 
 #### Ping handlePing(byte[] body, string signature, Options opts=null)
 When changes happen, a **ping** request will be sent to the **ping URL** specified in the Scanpay dashboard.
@@ -210,6 +210,4 @@ var url = client.renew(subscriberid, data);
 Console.WriteLine("Subscriber renew URL is: " + url);
 ```
 ## Testing
-See the tests/ folder for more examples against the test environment.
-
-If you want an account on the [test](tests/). environment, please do not hesitate to contact us at kontakt@scanpay.dk
+See the tests/ folder for more examples. If you want an account on the test environment, please do not hesitate to contact us.
