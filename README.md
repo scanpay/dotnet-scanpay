@@ -1,6 +1,6 @@
 # Scanpay .NET client
 
-The official .NET client library for the Scanpay API ([docs](https://docs.scanpay.dk)). You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay
+The official .NET client library for the Scanpay API ([docs](https://docs.scanpay.dev)). You can always e-mail us at [support@scanpay.dk](mailto:support@scanpay.dk), or chat with us on our IRC server: irc.scanpay.dev:6697 ([webchat](https://chat.scanpay.dev)).
 
 ## Installation
 The library is uploaded to [nuget](https://www.nuget.org/packages/scanpay/). You can install it in several ways:
@@ -202,7 +202,7 @@ var client = new Scanpay.Client(" APIKEY ");
 ulong subscriberid = 5;
 var data = new Scanpay.RenewReq
 {
-    successurl = "https://docs.test.scanpay.dk/subscriptions/renew-subscriber",
+    successurl = "https://docs.scanpay.dev/subscriptions/renew-subscriber",
     language   = "da",
     lifetime   = "1h",
 };

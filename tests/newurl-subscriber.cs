@@ -53,7 +53,7 @@ namespace NewURLSubscriberTest
             /* The following opts is to use the test environment, omit it to use the production env. */
             var opts = new Scanpay.Options
             {
-                hostname = "api.test.scanpay.dk",
+                hostname = "api.scanpay.dev",
             };
             var url = client.newURL(data, opts);
             Console.WriteLine("Subscription URL is: " + url);

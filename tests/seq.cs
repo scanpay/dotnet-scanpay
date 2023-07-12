@@ -7,7 +7,7 @@ namespace NewURLTest
         static void Main(string[] args)
         {
             var client = new Scanpay.Client("1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W");
-            var opts = new Scanpay.Options{ hostname = "api.test.scanpay.dk" };
+            var opts = new Scanpay.Options{ hostname = "api.scanpay.dev" };
             var seqRes = client.seq(1176, opts);
 
             Console.WriteLine("Printing seq res: (" + seqRes.seq + ")");
